@@ -1,0 +1,13 @@
+- hosts: "{{ servidores }}"
+  tasks:
+  - name: creamos usuario 
+    win_user:
+      name: "{{ item.empleado }}"
+      groups: "{{ item.equipo }}"
+      description: "usuario creado por ansible"
+      state: present
+    with_items:
+    - { empleado: 'pepe', equipo: 'Administrators' }
+    - { empleado: 'maria', equipo: 'Administrators' }
+    - { empleado: 'paco', equipo: 'Users' }
+    - { empleado: 'luis', equipo: 'Users' }

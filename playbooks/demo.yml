@@ -1,0 +1,57 @@
+---
+- hosts: windows01
+  tasks:
+  - name: Creamos un directorio temporal
+    win_file:
+      path: C:\Temp
+      state: directory
+  - name: descargamos el instalador de apache
+    win_get_url:
+      url: https://archive.apache.org/dist/httpd/binaries/win32/httpd-2.2.25-win32-x86-no_ssl.msi
+      dest:  C:\Temp
+  - name: Instalar el MSI de apache
+    win_package:
+      path: 'C:\Temp\httpd-2.2.25-win32-x86-no_ssl.msi'
+      state: present
+  - name: Configuramos ServerAdmin address
+    win_lineinfile:
+      path: 'C:\Program Files (x86)\Apache Software Foundation\Apache2.2\conf\httpd.conf'
+      regex: '^ServerAdmin'
+      line: 'ServerAdmin renzo@windows.com'
+  - name: pagina de bienvenida
+    win_copy:
+      dest: 'C:\Program Files (x86)\Apache Software Foundation\Apache2.2\htdocs\index.html'
+      content: |
+        <html>
+        <body>
+        <h1>It works!</h1>
+        Que bonito!
+        Que Bonito!
+        quE bOnito!
+        </body>
+        </html>
+  - name: validar que el servicio Apache2.2 exista
+    win_service:
+      name: Apache2.2
+    register: apache_service
+  - name: creo servicio Apache2.2
+    win_shell: '"C:\Program Files (x86)\Apache Software Foundation\Apache2.2\bin\httpd.exe" -k install'
+    args:
+      executable: cmd
+    when: not apache_service.exists
+  - name: levantamos servicio Apache2.2
+    win_service:
+      name: Apache2.2
+      state: started
+  - name: Abrimos puerto 80
+    win_firewall_rule:
+      name: HTTP
+      localport: 80
+      action: allow
+      direction: in
+      protocol: tcp
+      state: present
+      enabled: yes
+
+  
+  
