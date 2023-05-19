@@ -1,0 +1,22 @@
+---
+- hosts: "{{ servidores }}"
+  gather_facts: false
+  tasks:
+  - name: mostrar contenido de variable usuario
+    debug:
+      var: usuario
+  - name: crear usuario
+    win_user:
+      name: "{{ usuario }}"
+      groups: "{{ grupo }}"
+      description: "usuario creado"
+      state: present
+    register: output
+  - name: mostrar contenido de output
+    debug:
+      var: output
+      # msg:
+      # - "{{ output.fullname }}"
+      # - "{{ output.description }}"
+    # with_items: "{{ usuarios }}"
+    # when: is_usuario | bool
